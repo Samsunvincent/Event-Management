@@ -59,6 +59,7 @@ exports.login = async function (req, res) {
           let response = success_function({
             success: true,
             statusCode: 200,
+            message : "login is successfull",
             data: { user: check_user, token }
           });
           res.status(response.statusCode).send(response);
