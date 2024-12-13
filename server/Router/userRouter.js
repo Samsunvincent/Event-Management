@@ -15,5 +15,8 @@ router.post('/register',setAccessControl('*'),usercontroller.register_user)
 router.get('/getProfile/:id',setAccessControl('*'),usercontroller.getProfile);
 router.put('/updateProfile/:id',setAccessControl('*'),usercontroller.updateProfile);
 router.get('/userType',setAccessControl('*'),usercontroller.getUserType);
+router.get('/category',setAccessControl("*"),usercontroller.getCategory)
+router.get('/language',setAccessControl("*"),usercontroller.getLanguage)
+
 
 module.exports = router

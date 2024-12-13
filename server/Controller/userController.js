@@ -3,6 +3,9 @@ const bcrypt = require('bcrypt');  // Assuming you want to hash passwords
 const UserType = require('../db/Model/userType');  // Assuming this is the model for the userType collection
 const user = require('../db/Model/userModel');
 const userType = require('../db/Model/userType');
+const Category = require('../db/Model/categorySchema')
+const Language = require('../db/Model/languageSchema')
+
 
 exports.register_user = async function (req, res) {
   try {
@@ -92,43 +95,43 @@ exports.register_user = async function (req, res) {
 
 exports.getProfile = async function (req, res) {
   try {
-      const u_id = req.params.id;
+    const u_id = req.params.id;
 
-      // Validate if user ID is provided
-      if (!u_id) {
-          return res.status(400).json({ message: "User ID is required" });
-      }
+    // Validate if user ID is provided
+    if (!u_id) {
+      return res.status(400).json({ message: "User ID is required" });
+    }
 
-      // Fetch user details
-      const findUser = await user.findOne({ _id: u_id });
-      if (!findUser) {
-          return res.status(404).json({ message: "User details not found" });
-      }
-      console.log('findUser', findUser);
+    // Fetch user details
+    const findUser = await user.findOne({ _id: u_id });
+    if (!findUser) {
+      return res.status(404).json({ message: "User details not found" });
+    }
+    console.log('findUser', findUser);
 
-      // Fetch the user type details from the userType collection
-      const findUserType = await userType.findOne({ _id: findUser.userType });
-      if (!findUserType) {
-          return res.status(500).json({ message: "Not allowed to this route" });
-      }
-      console.log('findUserType', findUserType);
+    // Fetch the user type details from the userType collection
+    const findUserType = await userType.findOne({ _id: findUser.userType });
+    if (!findUserType) {
+      return res.status(500).json({ message: "Not allowed to this route" });
+    }
+    console.log('findUserType', findUserType);
 
-      // Check if user type matches the expected values (e.g., "Organizer" or "Attendee")
-      if (findUserType.userType === "Admin") {
-          return res.status(403).json({ message: "Access denied: Admin users are not allowed to this route" });
-      }
+    // Check if user type matches the expected values (e.g., "Organizer" or "Attendee")
+    if (findUserType.userType === "Admin") {
+      return res.status(403).json({ message: "Access denied: Admin users are not allowed to this route" });
+    }
 
-      // Respond with user details
-      return res.status(200).json({
-          message: "User details fetched successfully",
-          user: findUser,
-      });
+    // Respond with user details
+    return res.status(200).json({
+      message: "User details fetched successfully",
+      user: findUser,
+    });
   } catch (error) {
-      console.error("Error in getProfile:", error);
-      res.status(500).json({
-          message: "An error occurred while fetching user details",
-          error: error.message,
-      });
+    console.error("Error in getProfile:", error);
+    res.status(500).json({
+      message: "An error occurred while fetching user details",
+      error: error.message,
+    });
   }
 };
 
@@ -169,7 +172,7 @@ exports.updateProfile = async function (req, res) {
   }
 };
 
-exports.getUserType = async function(req, res) {
+exports.getUserType = async function (req, res) {
   try {
     // Query the userType collection from the database
     let usertype = await userType.find();
@@ -195,6 +198,63 @@ exports.getUserType = async function(req, res) {
     });
   }
 };
+
+exports.getCategory = async function (req, res) {
+  try {
+      // Fetch all categories from the database
+      const getCategory = await Category.find();
+
+      // If no categories are found
+      if (getCategory.length === 0) {
+          return res.status(404).json({
+              message: "No categories found"
+          });
+      }
+
+      // Return successful response with categories
+      return res.status(200).json({
+          message: "Categories retrieved successfully",
+          data: getCategory
+      });
+
+  } catch (error) {
+      // Log the error and send a failure response
+      console.error("Error retrieving categories:", error);
+      return res.status(500).json({
+          message: "Something went wrong while retrieving categories",
+          error: error.message
+      });
+  }
+};
+
+exports.getLanguage = async function (req, res) {
+  try {
+      // Fetch all languages from the database
+      const getLanguage = await Language.find();
+
+      // If no languages are found
+      if (getLanguage.length === 0) {
+          return res.status(404).json({
+              message: "No languages found"
+          });
+      }
+
+      // Return successful response with languages
+      return res.status(200).json({
+          message: "Languages retrieved successfully",
+          data: getLanguage
+      });
+
+  } catch (error) {
+      // Log the error and send a failure response
+      console.error("Error retrieving languages:", error);
+      return res.status(500).json({
+          message: "Something went wrong while retrieving languages",
+          error: error.message
+      });
+  }
+};
+
 
 
 

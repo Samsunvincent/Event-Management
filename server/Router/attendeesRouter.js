@@ -10,6 +10,8 @@ function setAccessControl(access_types){
     }
 }
 
-router.post('/bookTicket/:eid',setAccessControl("3"),attendeesController.bookingTicket);
+router.post('/bookTicket/:eid',setAccessControl("2,3"),attendeesController.bookingTicket);
+router.get('/manageRegisteredEvents/:id',setAccessControl("2,3"),attendeesController.ManageRegistration)
+router.get('/filter', setAccessControl("2,3"),attendeesController.getFilteredEvents);
 
 module.exports = router

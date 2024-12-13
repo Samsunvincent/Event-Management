@@ -4,6 +4,7 @@ const languagedata = require('../db/Model/languageSchema');
 const mongoose = require('mongoose');
 const user = require('../db/Model/userModel')
 const usertype = require('../db/Model/userType')
+const city = require('../db/Model/citySchema')
 
 
 
@@ -19,10 +20,13 @@ exports.addEvents = async function (req, res) {
     }
 
     let body_category = body.category;
-    let match_category = await categorydata.findOne({ category: body_category });
+    let match_category = await categorydata.findOne({ Category: body_category });
 
     let body_language = body.language;  // Fixed typo here 'langauage' to 'language'
-    let match_language = await languagedata.findOne({ language: body_language });
+    let match_language = await languagedata.findOne({ Language: body_language });
+
+    let body_city = body.city;
+    let match_city = await city.findOne( { City : body_city})
 
     if (!match_category || !match_language) {  // Corrected the condition
         return res.status(400).json({
@@ -51,8 +55,7 @@ exports.addEvents = async function (req, res) {
             name: req.body.name,
             description: req.body.description,
             venue: req.body.venue,
-            city: req.body.city,
-            state: req.body.state,
+            city: match_city.City,
             startDate: req.body.startDate,
             endDate: req.body.endDate,
             category: match_category._id,  // Using category ObjectId
