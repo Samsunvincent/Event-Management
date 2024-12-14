@@ -14,7 +14,7 @@ function setAccessControl(access_types){
 
 router.post('/addEvents/:id',setAccessControl('2'),upload,organizerController.addEvents);
 router.get('/getEvents/:id?', setAccessControl("*"), organizerController.getEvents);
-router.get('/getEvent/:e_id',setAccessControl("*"),organizerController.getEvent)
+router.get('/getEvent/:e_id/',setAccessControl("*"),organizerController.getEvent)
 router.get('/getOwnEvent/:id',setAccessControl("2"),organizerController.getOwnEvent);
 
 

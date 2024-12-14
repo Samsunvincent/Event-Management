@@ -40,9 +40,9 @@ const LoginRoute = async (body,navigate) =>{
             if(userType === "Admin"){
                 navigate(`/Admin/${token_key}/${id}/${userType}`)
             }else if(userType === "Organizer"){
-                navigate(`/Organizer/${token_key}/${id}/${userType}`)
+                navigate(`/${token_key}/${id}/${userType}`)
             }else if(userType === "Attendees"){
-                navigate(`/Attendees/${token_key}/${id}/${userType}`)
+                navigate(`/${token_key}/${id}/${userType}`)
             }
         }
     } catch (error) {

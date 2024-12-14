@@ -7,8 +7,11 @@ import UserRegistration from './Components/pages/Register and Login/UserRegistra
 import Home from './Components/pages/home/HomeComponent';
 import Login from './Components/pages/Register and Login/Login';
 import Admin from './Components/pages/Admin/Admin';
-import Organaizer from './Components/pages/Organizer/Organizer';
-import Attendees from './Components/pages/Attendees/Attendees';
+import Profile from './Components/pages/Profile/Profile';
+import SingleView from './Components/pages/SingleView';
+import ListEventForm from './Components/pages/ListEvent';
+
+
 
 function App() {
   return (
@@ -19,11 +22,14 @@ function App() {
 
         <Routes>
           <Route path="/" element={<Home />} />
+          <Route path='/:login/:id/:usertype' element={<Home/>}/>
           <Route path="/register" element={<UserRegistration />} />
           <Route path='/login' element={<Login/>}/>
           <Route path='/Admin/:login/:id/:usertype' element={<Admin/>}/>
-          <Route path='/Organizer/:login/:id/:usertype' element={<Organaizer/>}/>
-          <Route path='/Attendees/:login/:id/:usertype' element={<Attendees/>}/>
+          <Route path='/profile/:login/:id/:usertype' element={<Profile/>}/>
+          <Route path='/singleView/:login/:id/:usertype/:e_id' element={<SingleView/>}/>
+          <Route path='/listevent/:login/:id/:usertype' element={<ListEventForm/>}/>
+       
 
         </Routes>
       </Router>

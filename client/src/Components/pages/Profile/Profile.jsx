@@ -1,5 +1,5 @@
-export default function Attendees() {
-    return (
+export default function Profile(){
+    return(
         <>
             hello world
         </>

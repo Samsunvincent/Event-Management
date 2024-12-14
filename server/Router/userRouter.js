@@ -17,6 +17,7 @@ router.put('/updateProfile/:id',setAccessControl('*'),usercontroller.updateProfi
 router.get('/userType',setAccessControl('*'),usercontroller.getUserType);
 router.get('/category',setAccessControl("*"),usercontroller.getCategory)
 router.get('/language',setAccessControl("*"),usercontroller.getLanguage)
+router.get('/city',setAccessControl("*"),usercontroller.getCity)
 
 
 module.exports = router

@@ -86,8 +86,14 @@ exports.addEvents = async function (req, res) {
 exports.getEvents = async function (req, res) {
     try {
         const userid = req.params.id;
+        
 
         let eventQuery = {};
+
+ 
+
+
+      
 
         // Check if userid is provided
         if (userid) {
@@ -162,19 +168,24 @@ exports.getEvent = async function (req, res) {
             return res.status(400).json({ message: "Oops! Organizer details are not provided" });
         }
 
-        // Respond with the event details
+        // Fetch similar events based on category (excluding the current event)
+        const similarEvents = await Event.find({ category: checkEvent.category, _id: { $ne: e_id } }).limit(5); // Limit to 5 results
+
+        // Respond with the event details and similar events
         return res.status(200).json({
             message: "Event retrieved successfully",
             event: checkEvent,
             language: findLanguage,
             category: findCategory,
             organizer: findOrganizerDetails,
+            similarEvents: similarEvents, // Add similar events here
         });
     } catch (error) {
         console.error("Error in getEvent:", error);
         res.status(500).json({ message: "An error occurred while retrieving the event", error: error.message });
     }
 };
+
 
 exports.getOwnEvent = async function (req, res) {
     try {

@@ -127,7 +127,6 @@ exports.ManageRegistration = async function (req, res) {
 };
 
 
-
 exports.getFilteredEvents = async function (req, res) {
   try {
     // Get the filters from query params

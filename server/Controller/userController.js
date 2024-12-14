@@ -5,6 +5,7 @@ const user = require('../db/Model/userModel');
 const userType = require('../db/Model/userType');
 const Category = require('../db/Model/categorySchema')
 const Language = require('../db/Model/languageSchema')
+const city = require('../db/Model/citySchema')
 
 
 exports.register_user = async function (req, res) {
@@ -254,6 +255,11 @@ exports.getLanguage = async function (req, res) {
       });
   }
 };
+
+exports.getCity = async function(req,res){
+  let getCity = await city.find();
+  return res.status(200).json({message : "data retrieved successfully",getCity})
+}
 
 
 
