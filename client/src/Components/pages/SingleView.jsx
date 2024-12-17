@@ -1,38 +1,78 @@
 import { useEffect, useState } from "react";
 import Nav from "../Nav/Nav";
 import SingleViewRoute from "../functionalities/SingleViewRoute";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from 'react-toastify'; // Importing toastify
 
 export default function SingleView() {
-  const { e_id } = useParams();
+  const { e_id, login, id, usertype } = useParams(); // Get user id from params
   const [singleView, setSingleView] = useState(null); // Use null for initial state
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [category, setCategory] = useState();
   const [language, setLanguage] = useState();
   const [relatedEvents, setRelatedEvents] = useState([]); // State for related events
+  const navigate = useNavigate();
+  const token = localStorage.getItem(login); // Token for authorization (if user is logged in)
+  const [isBooked, setIsBooked] = useState(false); // Default to false
 
   useEffect(() => {
     const fetchEvent = async () => {
-      try {
-        setLoading(true);
-        const response = await SingleViewRoute(e_id); // Assume this returns the full response object
-        setSingleView(response.data.event);
-        setCategory(response.data.category);
-        setLanguage(response.data.language);
-        setRelatedEvents(response.data.similarEvents)
-
-        // Fetch related events based on the category or other criteria
-      
-      } catch (err) {
-        console.error("Error fetching data:", err);
-        setError("Failed to fetch data. Please try again.");
-      } finally {
-        setLoading(false);
-      }
+        try {
+            setLoading(true);
+            if (id) {
+                // If id is available (user is logged in), make the request with id
+                const response = await SingleViewRoute(e_id, id); 
+                console.log('id:', id); // Log id here to check if it’s correct
+                if (response && response.data) {
+                    setSingleView(response.data.event);
+                    setCategory(response.data.category);
+                    setLanguage(response.data.language);
+                    setRelatedEvents(response.data.similarEvents);
+                    setIsBooked(response.data.isBooked);
+                    console.log(response.data.isBooked); // Set the booking status from response
+                } else {
+                    setError("Event not found.");
+                }
+            } else {
+                // If id is not available (user is not logged in), make the request without id
+                const response = await SingleViewRoute(e_id); 
+                if (response && response.data) {
+                    setSingleView(response.data.event);
+                    setCategory(response.data.category);
+                    setLanguage(response.data.language);
+                    setRelatedEvents(response.data.similarEvents);
+                    setIsBooked(false); // If no id, there is no booking status
+                } else {
+                    setError("Event not found.");
+                }
+            }
+        } catch (err) {
+            console.error("Error fetching data:", err);
+            setError("Failed to fetch event data. Please try again.");
+        } finally {
+            setLoading(false);
+        }
     };
+
     fetchEvent();
-  }, [e_id]);
+}, [e_id, id, token]); // Re-run effect if e_id, id, or token changes
+
+  // Handle Book Button Click
+  const handleBookClick = () => {
+    if (!id) {
+      // If id is not present (user not logged in), show toast
+      toast.error("Please log in to book the event.");
+      return; // Don't proceed with booking
+    }
+
+    // Proceed with booking if user is logged in
+    if (!isBooked) {
+      navigate(`/bookevent/${login}/${id}/${usertype}/${e_id}`);
+    } else {
+      toast.info("Event already booked.");
+    }
+  };
 
   return (
     <>
@@ -56,7 +96,7 @@ export default function SingleView() {
               <img
                 src={`http://localhost:4000/${singleView.images[0]?.url || "https://via.placeholder.com/600x300"}`}
                 alt={singleView.images[0]?.alt || "Event Image"}
-                className="w-full h-64"
+                className="w-full h-96"
               />
             </div>
 
@@ -66,8 +106,8 @@ export default function SingleView() {
                 {singleView.name || "Event Title"}
               </h2>
               <p className="text-gray-600 text-sm md:text-base mb-4">
-                {category.Category || "Category"} |{" "}
-                {language.Language || "Language"} |{" "}
+                {category?.Category || "Category"} |{" "}
+                {language?.Language || "Language"} |{" "}
                 {singleView.ageLimit || "All Ages"} |{" "}
                 {singleView.duration || "Duration N/A"}
               </p>
@@ -101,8 +141,12 @@ export default function SingleView() {
 
               {/* Book Button */}
               <div className="mt-6 text-right">
-                <button className="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-4 py-2 rounded">
-                  Book
+                <button
+                  className={`bg-pink-500 hover:bg-pink-600 text-white font-semibold px-4 py-2 rounded ${isBooked ? 'bg-gray-400 cursor-not-allowed' : ''}`}
+                  onClick={handleBookClick}
+                  disabled={isBooked} // Disable button if isBooked is true
+                >
+                  {isBooked ? "Already Booked" : "Book"} {/* Display booking status */}
                 </button>
               </div>
             </div>
@@ -130,7 +174,7 @@ export default function SingleView() {
                       <h4 className="text-lg font-semibold text-gray-800">{event.name}</h4>
                       <p className="text-gray-600 text-sm">{event.category}</p>
                       <div className="mt-2 text-right">
-                        <button className="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-4 py-2 rounded">
+                        <button className="bg-pink-500 hover:bg-pink-600 text-white font-semibold px-4 py-2 rounded" >
                           View Details
                         </button>
                       </div>

@@ -1,17 +1,31 @@
 import axios from "axios";
 
-const SingleViewRoute = async function(e_id){
+export default async function SingleViewRoute(e_id, id) {
+    console.log('e_id:', e_id); // Debugging line
+    console.log('id:', id); // Debugging line
+
     try {
-        let response = await axios.get(`http://localhost:4000/getEvent/${e_id}`,{
-            headers : {
-                'Content-Type' : 'application/json'
+        // Base URL
+        let url = `http://localhost:4000/getEvent/${e_id}`;
+
+        // Append id only if it is defined and valid
+        if (id) {
+            url += `/${id}`;
+        }
+
+        console.log('Request URL:', url); // Debugging line to check the final URL
+
+        // Make the GET request
+        let response = await axios.get(url, {
+            headers: {
+                'Content-Type': 'application/json',
             },
         });
-        console.log("response",response);
+
+        console.log("response", response);
         return response;
     } catch (error) {
-        console.log('error',error);
+        console.error('error', error);
+        return null;
     }
 }
-
-export default SingleViewRoute

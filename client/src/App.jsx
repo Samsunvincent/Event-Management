@@ -9,9 +9,10 @@ import Login from './Components/pages/Register and Login/Login';
 import Admin from './Components/pages/Admin/Admin';
 import Profile from './Components/pages/Profile/Profile';
 import SingleView from './Components/pages/SingleView';
-import ListEventForm from './Components/pages/ListEvent';
-
-
+import AddedEvent from './Components/pages/Profile/AddedEvent';
+import AddEvents from './Components/pages/Events/AddEvents';
+import Tickets from './Components/pages/Profile/Tickets';
+import BookingEvent from './Components/pages/BookingEvent';
 
 function App() {
   return (
@@ -22,15 +23,20 @@ function App() {
 
         <Routes>
           <Route path="/" element={<Home />} />
-          <Route path='/:login/:id/:usertype' element={<Home/>}/>
-          <Route path="/register" element={<UserRegistration />} />
-          <Route path='/login' element={<Login/>}/>
-          <Route path='/Admin/:login/:id/:usertype' element={<Admin/>}/>
-          <Route path='/profile/:login/:id/:usertype' element={<Profile/>}/>
-          <Route path='/singleView/:login/:id/:usertype/:e_id' element={<SingleView/>}/>
-          <Route path='/listevent/:login/:id/:usertype' element={<ListEventForm/>}/>
-       
 
+          {/* Specific routes come first */}
+          <Route path="/singleView/:login/:id?/:usertype/:e_id" element={<SingleView />} />
+          <Route path="/bookevent/:login/:id/:usertype/:e_id" element={<BookingEvent />} />
+
+          {/* Other routes */}
+          <Route path='/:login/:id/:usertype' element={<Home />} />
+          <Route path="/register" element={<UserRegistration />} />
+          <Route path='/login' element={<Login />} />
+          <Route path='/Admin/:login/:id/:usertype' element={<Admin />} />
+          <Route path='/profile/:login/:id/:usertype' element={<Profile />} />
+          <Route path='/listevent/:login/:id/:usertype' element={<AddEvents />} />
+          <Route path='/getOwnEvent/:login/:id/:usertype' element={<AddedEvent />} />
+          <Route path='/tickets/:login/:id/:usertype' element={<Tickets />} />
         </Routes>
       </Router>
     </>
