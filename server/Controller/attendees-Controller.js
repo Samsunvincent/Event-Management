@@ -111,66 +111,65 @@ exports.bookingTicket = async function (req, res) {
   }
 };
 
-
 exports.ManageRegistration = async function (req, res) {
   try {
-    let uid = req.params.id; // The user ID from the URL parameter
-    let userIdFromToken = req.user ? req.user.id : null; // The user ID from the authenticated token
-    console.log(userIdFromToken);
+    const uid = req.params.id; // The user ID from the URL parameter
+    const userIdFromToken = req.user ? req.user.id : null; // The user ID from the authenticated token
+
+    // Debug logs
+    console.log("Extracted UID from params:", uid);
+    console.log("User ID from token:", userIdFromToken);
 
     // Validate if userId is provided and is a valid MongoDB ObjectId
-    if (!uid || !/^[0-9a-fA-F]{24}$/.test(uid)) {
-      return res.status(400).json({ message: "Valid user ID is required" });
+    if (!uid) {
+      return res.status(400).json({ message: "User ID is required in the URL." });
+    }
+    if (!/^[0-9a-fA-F]{24}$/.test(uid)) {
+      return res.status(400).json({ message: "Valid user ID is required." });
     }
 
-    // Validate if req.user exists and the user ID from the token matches the user ID in the params
-    if (!req.user || req.user.id !== uid) {
-      return res.status(403).json({ message: "You are not authorized to access this resource" });
+    // Validate user authorization
+    if (!req.user || String(req.user.id) !== String(uid)) {
+      return res.status(403).json({ message: "You are not authorized to access this resource." });
     }
 
     // Fetch the registered events for the user
-    let findRegisteredEvents = await booking.find({ userId: uid });
+    const findRegisteredEvents = await booking.find({ userId: uid });
 
     // Check if the user has any registered events
     if (findRegisteredEvents.length === 0) {
-      return res.status(404).json({ message: "No registered events found for the user" });
+      return res.status(404).json({ message: "No registered events found for the user." });
     }
 
-    // Fetch details for each event
-    let eventDetails = await Promise.all(
+    // Fetch detailed event data for each booking
+    const eventDetails = await Promise.all(
       findRegisteredEvents.map(async (booking) => {
-        let event = await Event.findById(booking.eventId);
-        return event; // Return the event details
+        const event = await Event.findById(booking.eventId).lean();
+        return {
+          ...booking.toObject(), // Include booking details
+          eventDetails: event || null, // Add event details or null if not found
+        };
       })
     );
 
-    // Filter out any missing events
-    eventDetails = eventDetails.filter((event) => event !== null);
+    // Remove bookings with missing or invalid event references
+    const validEventDetails = eventDetails.filter((booking) => booking.eventDetails !== null);
 
-    let currentDate = new Date();
-
-    // Check each event's end date and remove booking if the event has ended
-    for (let i = 0; i < eventDetails.length; i++) {
-      let event = eventDetails[i];
-      
-      if (event.endDate < currentDate) {
-        // If the event has ended, remove the booking for the user
-        await booking.deleteOne({ eventId: event._id, userId: uid });
-        console.log(`Removed booking for ended event: ${event.name}`);
-      }
-    }
-
-    // Return the response with the registered events
     return res.status(200).json({
       message: "Registered events retrieved successfully",
-      registeredEvents: findRegisteredEvents,
-      eventDetails: eventDetails,
+      registeredEvents: validEventDetails,
     });
   } catch (error) {
     console.error("Error in ManageRegistration:", error.message);
-    return res.status(500).json({ message: "An error occurred while retrieving registered events", error: error.message });
+    return res.status(500).json({
+      message: "An error occurred while retrieving registered events.",
+      error: error.message,
+    });
   }
 };
+
+
+
 
 
 

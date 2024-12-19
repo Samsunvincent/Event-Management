@@ -11,6 +11,7 @@ const router = require('./Router/userRouter')
 const authRouter = require('./Router/authRouter')
 const organizerRouter = require('./Router/organizerRouter')
 const attendeesRouter = require('./Router/attendeesRouter');
+const adminRouter = require('./Router/adminRouter');
 
 
 app.use(cors());
@@ -22,6 +23,7 @@ app.use(router)
 app.use(authRouter)
 app.use(organizerRouter)
 app.use(attendeesRouter);
+app.use(adminRouter);
 
 
 app.listen(process.env.PORT,()=>{

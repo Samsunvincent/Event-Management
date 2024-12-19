@@ -18,45 +18,45 @@ export default function SingleView() {
 
   useEffect(() => {
     const fetchEvent = async () => {
-        try {
-            setLoading(true);
-            if (id) {
-                // If id is available (user is logged in), make the request with id
-                const response = await SingleViewRoute(e_id, id); 
-                console.log('id:', id); // Log id here to check if it’s correct
-                if (response && response.data) {
-                    setSingleView(response.data.event);
-                    setCategory(response.data.category);
-                    setLanguage(response.data.language);
-                    setRelatedEvents(response.data.similarEvents);
-                    setIsBooked(response.data.isBooked);
-                    console.log(response.data.isBooked); // Set the booking status from response
-                } else {
-                    setError("Event not found.");
-                }
-            } else {
-                // If id is not available (user is not logged in), make the request without id
-                const response = await SingleViewRoute(e_id); 
-                if (response && response.data) {
-                    setSingleView(response.data.event);
-                    setCategory(response.data.category);
-                    setLanguage(response.data.language);
-                    setRelatedEvents(response.data.similarEvents);
-                    setIsBooked(false); // If no id, there is no booking status
-                } else {
-                    setError("Event not found.");
-                }
-            }
-        } catch (err) {
-            console.error("Error fetching data:", err);
-            setError("Failed to fetch event data. Please try again.");
-        } finally {
-            setLoading(false);
+      try {
+        setLoading(true);
+        if (id) {
+          // If id is available (user is logged in), make the request with id
+          const response = await SingleViewRoute(e_id, id);
+          console.log('id:', id); // Log id here to check if it’s correct
+          if (response && response.data) {
+            setSingleView(response.data.event);
+            setCategory(response.data.category);
+            setLanguage(response.data.language);
+            setRelatedEvents(response.data.similarEvents);
+            setIsBooked(response.data.isBooked);
+            console.log(response.data.isBooked); // Set the booking status from response
+          } else {
+            setError("Event not found.");
+          }
+        } else {
+          // If id is not available (user is not logged in), make the request without id
+          const response = await SingleViewRoute(e_id);
+          if (response && response.data) {
+            setSingleView(response.data.event);
+            setCategory(response.data.category);
+            setLanguage(response.data.language);
+            setRelatedEvents(response.data.similarEvents);
+            setIsBooked(false); // If no id, there is no booking status
+          } else {
+            setError("Event not found.");
+          }
         }
+      } catch (err) {
+        console.error("Error fetching data:", err);
+        setError("Failed to fetch event data. Please try again.");
+      } finally {
+        setLoading(false);
+      }
     };
 
     fetchEvent();
-}, [e_id, id, token]); // Re-run effect if e_id, id, or token changes
+  }, [e_id, id, token]); // Re-run effect if e_id, id, or token changes
 
   // Handle Book Button Click
   const handleBookClick = () => {
@@ -140,15 +140,26 @@ export default function SingleView() {
               )}
 
               {/* Book Button */}
+              // Book Button
               <div className="mt-6 text-right">
                 <button
-                  className={`bg-pink-500 hover:bg-pink-600 text-white font-semibold px-4 py-2 rounded ${isBooked ? 'bg-gray-400 cursor-not-allowed' : ''}`}
+                  className={`${singleView.u_id === id
+                      ? 'bg-gray-400 cursor-not-allowed'
+                      : isBooked
+                        ? 'bg-gray-400 cursor-not-allowed'
+                        : 'bg-pink-500 hover:bg-pink-600'
+                    } text-white font-semibold px-4 py-2 rounded`}
                   onClick={handleBookClick}
-                  disabled={isBooked} // Disable button if isBooked is true
+                  disabled={singleView.u_id === id || isBooked} // Disable button if user is creator or has already booked
                 >
-                  {isBooked ? "Already Booked" : "Book"} {/* Display booking status */}
+                  {singleView.u_id === id
+                    ? "You Created This Event"
+                    : isBooked
+                      ? "Already Booked"
+                      : "Book"}
                 </button>
               </div>
+
             </div>
 
             {/* About the Event Section */}

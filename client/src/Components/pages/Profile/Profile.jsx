@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import Nav from "../../Nav/Nav";
+
 import GetUserData from "../../functionalities/GetUserDataRoute";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import UpdateProfileRoute from "../../functionalities/UpdateProfileRoute";
@@ -7,6 +7,7 @@ import UpdateProfileRoute from "../../functionalities/UpdateProfileRoute";
 // Import Font Awesome for pen, cross, and tick icons
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPen, faTimes, faCheck } from "@fortawesome/free-solid-svg-icons";
+import NavTwo from "../../Nav/NavTwo";
 
 export default function Profile() {
     const { id, login, usertype } = useParams(); // Extracting user ID from the route params
@@ -71,7 +72,7 @@ export default function Profile() {
     return (
         <>
             <div className="min-h-screen flex flex-col">
-                <Nav />
+                <NavTwo />
                 <div className="bg-gray-100 pt-4 flex-1">
                     <header className="bg-blue-900 text-white p-6">
                         <div className="container mx-auto flex justify-between items-center">

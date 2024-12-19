@@ -8,77 +8,83 @@ const { success_function, error_function } = require('../utils/ResponseHandler')
 exports.accessControl = async function (access_types, req, res, next) {
   try {
     if (access_types === '*') {
-      next();
-    } else {
-      const authHeader = req.headers['authorization'];
-      if (!authHeader) {
-        let response = error_function({
-          statusCode: 400,
-          message: "Please login to continue",
-        });
-        res.status(response.statusCode).send(response);
-        return;
-      }
-
-      const token = authHeader.split(" ")[1];
-      if (!token) {
-        let response = error_function({
-          statusCode: 400,
-          message: "Invalid access token",
-        });
-        res.status(response.statusCode).send(response);
-        return;
-      }
-
-      jwt.verify(token, process.env.PRIVATE_KEY, async function (err, decoded) {
-        if (err) {
-          let response = error_function({
-            statusCode: 400,
-            message: err.message ? err.message : "Authentication failed",
-          });
-          res.status(response.statusCode).send(response);
-          return;
-        }
-
-        // Attach the user details to the request
-        req.user = {
-          id: decoded.id,
-          role: decoded.role,
-        };
-
-        // Fetch user data to validate existence
-        let user_data = await user.findOne({ _id: decoded.id }).populate("userType");
-        if (!user_data) {
-          let response = error_function({
-            statusCode: 404,
-            message: "User not found",
-          });
-          res.status(response.statusCode).send(response);
-          return;
-        }
-
-        // Verify user role access
-        let user_type = user_data.userType ? user_data.userType.userType : 'Admin';
-        let allowed = access_types.split(",").map((obj) => control_data[obj]);
-        if (allowed && allowed.includes(user_type)) {
-          req.user_data = user_data; // Pass user data to the request
-          next();
-        } else {
-          let response = error_function({
-            statusCode: 403,
-            message: "Not allowed to access the route",
-          });
-          res.status(response.statusCode).send(response);
-          return;
-        }
-      });
+      return next(); // Allow unrestricted access
     }
-  } catch (error) {
-    let response = error_function({
-      statusCode: 500,
-      message: error.message ? error.message : "Something went wrong",
+
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) {
+      return res.status(401).send(
+        error_function({
+          statusCode: 401,
+          message: 'Please login to continue',
+        })
+      );
+    }
+
+    const token = authHeader.split(' ')[1];
+    if (!token) {
+      return res.status(400).send(
+        error_function({
+          statusCode: 400,
+          message: 'Invalid access token',
+        })
+      );
+    }
+
+    jwt.verify(token, process.env.PRIVATE_KEY, async (err, decoded) => {
+      if (err) {
+        return res.status(401).send(
+          error_function({
+            statusCode: 401,
+            message: err.message || 'Authentication failed',
+          })
+        );
+      }
+
+      // Fetch user details from the database
+      const user_data = await user.findOne({ _id: decoded.id }).populate('userType');
+      if (!user_data) {
+        return res.status(404).send(
+          error_function({
+            statusCode: 404,
+            message: 'User not found',
+          })
+        );
+      }
+
+      // Extract user role
+      const user_role = user_data.userType?.userType || 'Admin';
+      console.log('Extracted user role:', user_role);
+
+      // Verify access permissions
+      const allowedRoles = access_types.split(',').map((type) => control_data[type]);
+      if (!allowedRoles.includes(user_role)) {
+        return res.status(403).send(
+          error_function({
+            statusCode: 403,
+            message: 'Not allowed to access the route',
+          })
+        );
+      }
+
+      // Attach user and role to the request
+      req.user = {
+        id: user_data._id,
+        role: user_role,
+      };
+      req.user_data = user_data;
+
+      next();
     });
-    res.status(response.statusCode).send(response);
+  } catch (error) {
+    console.error('Access control error:', error);
+    res.status(500).send(
+      error_function({
+        statusCode: 500,
+        message: error.message || 'Something went wrong',
+      })
+    );
   }
 };
+
 

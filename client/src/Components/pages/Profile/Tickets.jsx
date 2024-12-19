@@ -5,7 +5,7 @@ import { useParams } from "react-router-dom";
 export default function Tickets() {
     const { login, id, usertype } = useParams();
     const token = localStorage.getItem(login);
-    const [ticketData, setTicketData] = useState({ registeredEvents: [], eventDetails: [] });
+    const [ticketData, setTicketData] = useState({ registeredEvents: [] });
 
     useEffect(() => {
         const fetchTicketData = async () => {
@@ -25,10 +25,7 @@ export default function Tickets() {
 
                 {ticketData?.registeredEvents?.length > 0 ? (
                     ticketData.registeredEvents.map((ticket, index) => {
-                        // Find the event details that match the eventId from registeredEvents
-                        const eventDetail = ticketData.eventDetails.find(
-                            (event) => event._id === ticket.eventId
-                        );
+                        const eventDetail = ticket.eventDetails; // Access directly from registeredEvents
 
                         return eventDetail ? (
                             <div

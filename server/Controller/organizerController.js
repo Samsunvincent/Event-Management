@@ -13,95 +13,95 @@ const Booking = require('../db/Model/bookingSchema')
 
 
 exports.addEvents = async function (req, res) {
-    const body = req.body;
-
-    // Check if the body is empty
-    if (!body) {
-        return res.status(400).json({
-            message: 'All fields are required'
-        });
-    }
-
-    // Validate req.user (authentication check)
-    if (!req.user) {
-        return res.status(401).json({
-            message: 'Unauthorized. Please log in.'
-        });
-    }
-
-    // Check if the user is an Organizer
-    if (req.user.role !== 'Organizer') {
-        return res.status(403).json({
-            message: 'Forbidden. Only organizers can add events.'
-        });
-    }
-
-    // Find category, language, and city
-    let body_category = body.category;
-    let match_category = await categorydata.findOne({ Category: body_category });
-
-    let body_language = body.language;  // Fixed typo here 'langauage' to 'language'
-    let match_language = await languagedata.findOne({ Language: body_language });
-
-    let body_city = body.city;
-    let match_city = await city.findOne({ City: body_city });
-
-    // If category or language are invalid, return an error
-    if (!match_category || !match_language) {
-        return res.status(400).json({
-            message: 'Select a valid category or valid language'
-        });
-    }
-
     try {
-        // Validate if the body is empty or missing required fields
+        const body = req.body;
+        const user = req.user;
+
+        // Debug logs
+        console.log('req.user:', user);
+
+        // Check if the request body exists
         if (!body || Object.keys(body).length === 0) {
             return res.status(400).json({
-                message: 'All fields are required'
+                message: 'All fields are required',
             });
         }
 
-        // Process images
-        const images = (req.files['images[]'] || []).map(file => ({
-            url: file.path,  // Store the file path
-            alt: req.body.altText || 'Event Image',  // Optional alt text
+        // Validate that the user is authenticated
+        if (!user) {
+            return res.status(401).json({
+                message: 'Unauthorized. Please log in.',
+            });
+        }
+
+        // Check if the user has the Organizer role
+        const userRole = user.role?.trim().toLowerCase(); // Use `user.role`
+        console.log('Extracted user role:', userRole);
+
+        if (userRole !== 'organizer') {
+            return res.status(403).json({
+                message: 'Forbidden. Only organizers can add events.',
+            });
+        }
+
+        // Validate and find the category, language, and city
+        const { category, language, city: cityName } = body;
+
+        const [match_category, match_language, match_city] = await Promise.all([
+            categorydata.findOne({ Category: category }),
+            languagedata.findOne({ Language: language }),
+            city.findOne({ City: cityName }),
+        ]);
+
+        if (!match_category || !match_language) {
+            return res.status(400).json({
+                message: 'Select a valid category or valid language',
+            });
+        }
+
+        // Process image files if available
+        const images = (req.files?.['images[]'] || []).map(file => ({
+            url: file.path,
+            alt: body.altText || 'Event Image', // Fallback to default alt text
         }));
 
-        // Convert req.params.id to ObjectId
-        const organizerId = new mongoose.Types.ObjectId(req.params.id);
+        // Convert organizer ID to ObjectId
+        const organizerId =new mongoose.Types.ObjectId(req.params.id);
 
-        // Creating new event with the valid category and language ObjectIds
+        // Create a new event
         const newEvent = new Event({
-            u_id: organizerId,  // Ensure u_id is an ObjectId
-            name: req.body.name,
-            description: req.body.description,
-            venue: req.body.venue,
-            city: match_city.City,
-            startDate: req.body.startDate,
-            endDate: req.body.endDate,
-            category: match_category._id,  // Using category ObjectId
-            language: match_language._id,  // Using language ObjectId
-            ticketPrice: req.body.ticketPrice,
-            availableTickets: req.body.availableTickets,
-            status: req.body.status,
+            u_id: organizerId,
+            name: body.name,
+            description: body.description,
+            venue: body.venue,
+            city: match_city?.City, // Optional chaining for safety
+            startDate: body.startDate,
+            endDate: body.endDate,
+            category: match_category._id, // Use category ObjectId
+            language: match_language._id, // Use language ObjectId
+            ticketPrice: body.ticketPrice,
+            availableTickets: body.availableTickets,
+            status: body.status,
             images,
         });
 
-        await newEvent.save();  // Save the new event to the database
+        // Save the new event in the database
+        await newEvent.save();
 
         return res.status(201).json({
             message: 'Event added successfully',
-            event: newEvent
+            event: newEvent,
         });
-
     } catch (error) {
-        console.log("Error adding event:", error);
+        console.error('Error adding event:', error);
         return res.status(500).json({
             message: 'An error occurred while adding the event',
-            error: error.message
+            error: error.message,
         });
     }
 };
+
+
 
 exports.getEvents = async function (req, res) {
     try {
@@ -121,7 +121,7 @@ exports.getEvents = async function (req, res) {
             console.log("check_user", check_user);
 
             // Fetch user type and validate
-            const check_userType = await usertype.findOne({ _id: check_user.userType }).populate('userType');
+            const check_userType = await usertype.findOne({ _id: check_user.userType });
             console.log("check_userType", check_userType);
 
             if (!check_userType) {
@@ -138,28 +138,32 @@ exports.getEvents = async function (req, res) {
 
         // Fetch events based on the constructed query (all events if no userid)
         const events = await Event.find(eventQuery);
+
+        // If no events are found, return an empty array
         if (!events || events.length === 0) {
-            return res.status(404).json({ message: "No events found" });
+            return res.status(200).json({ message: "No events found", events: [] });
         }
 
-        // Filter out events that have passed and update their status to "inactive"
-        const updatedEvents = events.map((event) => {
-            if (new Date(event.endDate) < currentDate) {
-                event.status = "Inactive"; // Update the status of passed events
-                event.save(); // Save the updated event
-            }
-            return event;
-        }).filter(event => new Date(event.endDate) >= currentDate); // Exclude events that have passed
+        // Filter out events that have passed
+        const activeEvents = events.filter(event => new Date(event.endDate) >= currentDate);
 
-        console.log("updatedEvents", updatedEvents);
+        // Update the status of passed events to "Inactive"
+        const passedEvents = events.filter(event => new Date(event.endDate) < currentDate);
+        for (const event of passedEvents) {
+            event.status = "Inactive";
+            await event.save(); // Update event status in the database
+        }
 
-        // Respond with the filtered events
-        res.status(200).json({ message: "Events fetched successfully", events: updatedEvents });
+        console.log("Active Events:", activeEvents);
+
+        // Respond with the active events
+        res.status(200).json({ message: "Events fetched successfully", events: activeEvents });
     } catch (error) {
         console.error("Error in getEvents:", error);
         res.status(500).json({ message: "An error occurred while fetching events", error: error.message });
     }
 };
+
 
 
 exports.getEvent = async function (req, res) {
@@ -237,7 +241,7 @@ exports.getEvent = async function (req, res) {
 
 exports.getOwnEvent = async function (req, res) {
     try {
-        const u_id = req.params.id;
+        const u_id = req.user.id;
 
         // Validate if user ID is provided
         if (!u_id) {
@@ -267,7 +271,7 @@ exports.getOwnEvent = async function (req, res) {
 };
 
 exports.updateEvent = async function (req, res) {
-    const eventId = req.params.id;  // Event ID to update
+    const eventId = req.params.e_id;  // Event ID to update
     const body = req.body;
 
     // Validate if the user is authenticated and authorized
@@ -294,7 +298,7 @@ exports.updateEvent = async function (req, res) {
         }
 
         // Ensure the user is the organizer of the event they are updating
-        if (event.u_id.toString() !== req.user._id.toString()) {
+        if (event.u_id.toString() !== req.user.id.toString()) {
             return res.status(403).json({
                 message: 'Forbidden. You are not the organizer of this event.'
             });

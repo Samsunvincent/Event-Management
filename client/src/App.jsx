@@ -13,6 +13,8 @@ import AddedEvent from './Components/pages/Profile/AddedEvent';
 import AddEvents from './Components/pages/Events/AddEvents';
 import Tickets from './Components/pages/Profile/Tickets';
 import BookingEvent from './Components/pages/BookingEvent';
+import Participants from './Components/pages/Participants';
+import UpdateEvent from './Components/pages/UpdateEvent';
 
 function App() {
   return (
@@ -37,6 +39,8 @@ function App() {
           <Route path='/listevent/:login/:id/:usertype' element={<AddEvents />} />
           <Route path='/getOwnEvent/:login/:id/:usertype' element={<AddedEvent />} />
           <Route path='/tickets/:login/:id/:usertype' element={<Tickets />} />
+          <Route path='/participants/:login/:id/:usertype/:e_id' element={<Participants/>}/>
+          <Route path='/updateEvent/:login/:id/:usertype/:e_id' element={<UpdateEvent/>}/>
         </Routes>
       </Router>
     </>

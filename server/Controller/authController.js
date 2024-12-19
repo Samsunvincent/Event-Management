@@ -55,6 +55,7 @@ exports.login = async function (req, res) {
           const role = check_user.userType ? (check_user.userType.userType === 'Organizer' ? 'admin' : 'user') : 'admin';
           
           const token = jwt.sign({ id: check_user._id, role: role }, process.env.PRIVATE_KEY, { expiresIn: role === 'admin' ? '1h' : '10d' });
+          console.log('token : ',token);
   
           let response = success_function({
             success: true,
@@ -62,6 +63,7 @@ exports.login = async function (req, res) {
             message : "login is successfull",
             data: { user: check_user, token }
           });
+        
           res.status(response.statusCode).send(response);
           return;
         } else {

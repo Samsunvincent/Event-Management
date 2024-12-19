@@ -1,8 +1,8 @@
 import axios from "axios";
 
-const AddedEvents = async (id,token) =>{
+const AddedEvents = async (token) =>{
     try {
-        let response = await axios.get(`http://localhost:4000/getOwnEvent/${id}`,{
+        let response = await axios.get(`http://localhost:4000/getOwnEvent`,{
             headers : {
                 'Content-Type' : 'application/json',
                 'Authorization' : `Bearer ${token}`
