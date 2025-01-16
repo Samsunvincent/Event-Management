@@ -46,6 +46,19 @@ export default function Admin() {
         navigate(`/singleView/${login}/${id}/${usertype}/${e_id}`);
     }, [login, id, usertype, navigate]);
 
+    const handleEvents = useCallback(() => {
+        navigate(`/adminallevents/${login}/${id}/${usertype}`)
+    })
+
+    const handleOrganizer = useCallback(() => {
+        navigate(`/allOrganizers/${login}/${id}/${usertype}`)
+    })
+
+    const handleAttendees = useCallback(() => {
+        navigate(`/allAttendees/${login}/${id}/${usertype}`)
+    })
+
+
     return (
         <div className="min-h-screen flex flex-col bg-gray-100">
             {/* Header */}
@@ -75,13 +88,17 @@ export default function Admin() {
                                 <i className="fas fa-tachometer-alt mr-4 text-lg"></i>
                                 Dashboard
                             </a>
-                            <a className="flex items-center text-gray-700 hover:text-gray-900 font-medium" href="#">
-                                <i className="fas fa-calendar-alt mr-4 text-lg"></i>
+                            <a className="flex items-center text-gray-700 hover:text-gray-900 font-medium" href="#" onClick={handleEvents}>
+                                <i className="fas fa-calendar-alt mr-4 text-lg" ></i>
                                 Events
                             </a>
-                            <a className="flex items-center text-gray-700 hover:text-gray-900 font-medium" href="#">
+                            <a className="flex items-center text-gray-700 hover:text-gray-900 font-medium" href="#" onClick={handleOrganizer}>
                                 <i className="fas fa-users mr-4 text-lg"></i>
-                                Users
+                                Organizers
+                            </a>
+                            <a className="flex items-center text-gray-700 hover:text-gray-900 font-medium" href="#" onClick={handleAttendees}>
+                                <i className="fas fa-users mr-4 text-lg"></i>
+                                Attendees
                             </a>
                             <a className="flex items-center text-gray-700 hover:text-gray-900 font-medium" href="#">
                                 <i className="fas fa-cogs mr-4 text-lg"></i>
@@ -124,32 +141,51 @@ export default function Admin() {
                             <h2 className="text-xl font-semibold text-gray-800 mb-4">Recent Bookings</h2>
                             <div className="bg-white p-6 rounded-xl shadow-lg">
                                 <ul className="space-y-6">
-                                    {recentBookings.length > 0 ? recentBookings.map((booking, index) => (
-                                        <li
-                                            key={index}
-                                            className="flex items-center justify-between hover:bg-gray-50 rounded-lg p-3"
-                                            onClick={() => handleEventDetails(booking.EventId)}
-                                        >
-                                            <div className="flex items-center">
-                                                <img
-                                                    src={`http://localhost:4000/${booking.image.replace(/\\/g, '/')}`} // Replace backslashes with forward slashes
-                                                    alt={booking.name}
-                                                    className="w-12 h-12 rounded-full mr-4"
-                                                />
+                                    {recentBookings && recentBookings.length > 0 ? (
+                                        recentBookings.map((booking, index) => (
+                                            <li
+                                                key={index}
+                                                className="flex items-center justify-between hover:bg-gray-50 rounded-lg Ddatep-3 cursor-pointer"
+                                                onClick={() => handleEventDetails(booking.EventId)}
+                                            >
+                                                <div className="flex items-center">
+                                                    {/* Image */}
+                                                    {booking.image ? (
+                                                        <img
+                                                            src={`http://localhost:4000/${booking.image.replace(/\\/g, '/')}`}
+                                                            alt={booking.name || 'Event'}
+                                                            className="w-12 h-12 rounded-full mr-4"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-12 h-12 rounded-full bg-gray-200 mr-4 flex items-center justify-center">
+                                                            <span className="text-gray-400">N/A</span>
+                                                        </div>
+                                                    )}
 
-                                                <div>
-                                                    <p className="text-gray-800 font-semibold">{booking.name}</p>
-                                                    <p className="text-gray-600">{new Date(booking.date).toLocaleDateString()}</p>
+                                                    {/* Event Info */}
+                                                    <div>
+                                                        <p className="text-gray-800 font-semibold">{booking.name || 'Unknown Event'}</p>
+                                                        <p className="text-gray-600">
+                                                            {booking.date
+                                                                ? new Date(booking.date).toLocaleDateString()
+                                                                : 'No Date Available'}
+                                                        </p>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                            <span className="text-gray-600 text-sm">{booking.location}</span>
-                                        </li>
-                                    )) : (
+
+                                                {/* Location */}
+                                                <span className="text-gray-600 text-sm">
+                                                    {booking.location || 'No Location Available'}
+                                                </span>
+                                            </li>
+                                        ))
+                                    ) : (
                                         <li>No recent bookings available.</li>
                                     )}
                                 </ul>
                             </div>
                         </div>
+
                     </div>
                 </main>
             </div>

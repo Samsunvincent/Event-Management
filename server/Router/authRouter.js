@@ -11,6 +11,7 @@ function setAccessControl(access_types){
 
 
 router.post('/login',authcontroller.login);
+router.post('/forgot-password',setAccessControl('*') ,authcontroller.forgetpassword);
 
 
 

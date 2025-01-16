@@ -140,7 +140,7 @@ export default function SingleView() {
               )}
 
               {/* Book Button */}
-              // Book Button
+              
               <div className="mt-6 text-right">
                 <button
                   className={`${singleView.u_id === id

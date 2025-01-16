@@ -39,6 +39,11 @@ let registerSchema = new mongoose.Schema(
             type: mongoose.Schema.Types.ObjectId,
             ref: "userType"
         },
+        user_Status: {
+            type: String,
+            enum: ["block", "unblock"], // Array of valid values
+            default: "unblock"         // Default value set to "unblock"
+        }
         
     },
     { timestamps: true } // Adds createdAt and updatedAt fields automatically

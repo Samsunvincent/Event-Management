@@ -86,16 +86,16 @@ exports.bookingTicket = async function (req, res) {
 
     //Email section
 
-    // if (bookedTicket) {
-    //   let ticketCount = bookedTicket.numberOfTickets;
-    //   let totalPrice = bookedTicket.totalAmount;
+    if (bookedTicket) {
+      let ticketCount = bookedTicket.numberOfTickets;
+      let totalPrice = bookedTicket.totalAmount;
 
-    //   // Generate booking email content
-    //   let bookingEmailContent = await BookingEmailTemplate(customerName, eventName, eventDate, ticketCount, ticketAmount, totalPrice);
+      // Generate booking email content
+      let bookingEmailContent = await BookingEmailTemplate(customerName, eventName, eventDate, ticketCount, ticketAmount, totalPrice);
 
-    //   // Send the booking confirmation email
-    //   await sendEmail(email, "Booking Confirmation", bookingEmailContent);
-    // }
+      // Send the booking confirmation email
+      await sendEmail(email, "Booking Confirmation", bookingEmailContent);
+    }
 
 
 

@@ -11,6 +11,10 @@ function setAccessControl(access_types){
 }
 
 Router.get('/Count',setAccessControl('1'),AdminController.Count)
+Router.get('/allevents',setAccessControl('1'),AdminController.allEvent)
+Router.get('/allOrganizer',setAccessControl('1'),AdminController.allOrganizers);
+Router.get('/allAttendees',setAccessControl('1'),AdminController.allAttendees)
+Router.post('/blockOrUnblock/:id', setAccessControl('1'),AdminController.blockOrUnblock);
 
 
 

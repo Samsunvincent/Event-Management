@@ -52,6 +52,16 @@ exports.accessControl = async function (access_types, req, res, next) {
         );
       }
 
+      // Check if the user is blocked
+      if (user_data.user_Status === 'block') {
+        return res.status(403).send(
+          error_function({
+            statusCode: 403,
+            message: 'Your account has been blocked. Please contact support.',
+          })
+        );
+      }
+
       // Extract user role
       const user_role = user_data.userType?.userType || 'Admin';
       console.log('Extracted user role:', user_role);
@@ -86,5 +96,3 @@ exports.accessControl = async function (access_types, req, res, next) {
     );
   }
 };
-
-

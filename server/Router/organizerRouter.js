@@ -20,6 +20,6 @@ router.get('/getOwnEvent', setAccessControl("2"), organizerController.getOwnEven
 router.put('/updateEvent/:e_id', setAccessControl("1,2"), upload, organizerController.updateEvent);
 
 // New Route for Getting Participants of an Event
-router.get('/getParticipants/:e_id', setAccessControl("2"), organizerController.getParticipantsForEvent);
+router.get('/getParticipants/:e_id', setAccessControl("2,1"), organizerController.getParticipantsForEvent);
 
 module.exports = router;

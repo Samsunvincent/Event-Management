@@ -15,6 +15,9 @@ import Tickets from './Components/pages/Profile/Tickets';
 import BookingEvent from './Components/pages/BookingEvent';
 import Participants from './Components/pages/Participants';
 import UpdateEvent from './Components/pages/UpdateEvent';
+import AllEvents from './Components/pages/Admin/AllEventsAdmin';
+import AllAttendees from './Components/pages/Admin/AllAttendees';
+import AllOrganizers from './Components/pages/Admin/AllOrganizers';
 
 function App() {
   return (
@@ -41,6 +44,10 @@ function App() {
           <Route path='/tickets/:login/:id/:usertype' element={<Tickets />} />
           <Route path='/participants/:login/:id/:usertype/:e_id' element={<Participants/>}/>
           <Route path='/updateEvent/:login/:id/:usertype/:e_id' element={<UpdateEvent/>}/>
+          <Route path='/adminallevents/:login/:id/:usertype' element={<AllEvents/>}/>
+          <Route path='/allOrganizers/:login/:id/:usertype' element={<AllOrganizers/>}/>
+          <Route path='/allAttendees/:login/:id/:usertype' element={<AllAttendees/>}/>
+
         </Routes>
       </Router>
     </>
